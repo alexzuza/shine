@@ -35,7 +35,7 @@ task(':build:components:spec', tsBuildTask(COMPONENTS_DIR));
 
 /** Copies assets (html, markdown) to build output. */
 task(':build:components:assets', copyTask([
-  path.join(COMPONENTS_DIR, '**/*.!(ts|spec.ts)'),
+  path.join(COMPONENTS_DIR, '**/*.+!(ts|spec.ts)'),
   path.join(PROJECT_ROOT, 'README.md'),
   path.join(PROJECT_ROOT, 'LICENSE'),
 ], DIST_COMPONENTS_ROOT));

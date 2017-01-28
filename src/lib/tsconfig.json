@@ -1,22 +1,26 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "lib": ["es6", "es2015", "dom"],
     "module": "commonjs",
     "moduleResolution": "node",
-    "outDir": "../../dist/angular-shine",
+    "noEmitOnError": true,
     "noImplicitAny": true,
+    "outDir": "../../dist/angular-shine",
     "rootDir": ".",
-    "inlineSourceMap": true,
-    "skipDefaultLibCheck": true,
-    "skipLibCheck": true,
-    "target": "es5"
+    "sourceMap": true,
+    "target": "es5",
+    "inlineSources": true,
+    "stripInternal": false,
+    "baseUrl": "",
+    "paths": {
+    },
+    "typeRoots": [
+      "../../node_modules/@types/!(node)"
+    ]
   },
-  "exclude": [
-
-  ],
   "angularCompilerOptions": {
     "genDir": "../../dist",
     "skipTemplateCodegen": true,
