@@ -1,0 +1,23 @@
+{
+  "name": "angular-shine",
+  "version": "1.0.0",
+  "description": "Angular Shine",
+  "main": "./bundles/shine.umd.js",
+  "module": "./index.js",
+  "typings": "./index.d.ts",
+  "repository": {
+
+  },
+  "keywords": [
+    "angular",
+    "shine",
+    "components"
+  ],
+  "license": "MIT",
+  "bugs": {
+  },
+  "peerDependencies": {
+    "@angular/core": "^2.4.0",
+    "@angular/common": "^2.4.0"
+  }
+}
