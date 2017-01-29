@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
 
+
 /**
  * Simple Promiseify function that takes a Node API and return a version that supports promises.
  * We use promises instead of synchronized functions to make the process less I/O bound and

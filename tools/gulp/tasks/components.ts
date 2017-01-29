@@ -6,22 +6,18 @@ import {
 } from '../constants';
 import {
   tsBuildTask, execNodeTask, copyTask, sequenceTask
-} from '../task_helpers';
+} from '../helpers';
 
 // No typings for these.
-const inlineResources = require('../../../scripts/release/inline-resources');
+const inlineResources = require('../inline-resources');
 const gulpRollup = require('gulp-better-rollup');
 const gulpMinifyCss = require('gulp-clean-css');
 const gulpMinifyHtml = require('gulp-htmlmin');
 const gulpIf = require('gulp-if');
 
 
-// NOTE: there are two build "modes" in this file, based on which tsconfig is used.
-// When `tsconfig.json` is used, we are outputting ES6 modules and a UMD bundle. This is used
+// we are outputting ES6 modules and a UMD bundle. This is used
 // for serving and for release.
-//
-// When `tsconfig-spec.json` is used, we are outputting CommonJS modules. This is used
-// for unit tests (karma).
 
 /** Path to the tsconfig used for ESM output. */
 const tsconfigPath = path.relative(PROJECT_ROOT, path.join(COMPONENTS_DIR, 'tsconfig.json'));
@@ -30,12 +26,11 @@ const tsconfigPath = path.relative(PROJECT_ROOT, path.join(COMPONENTS_DIR, 'tsco
 /** Builds component typescript only (ESM output). */
 task(':build:components:ts', tsBuildTask(COMPONENTS_DIR, 'tsconfig-srcs.json'));
 
-/** Builds components typescript for tests (CJS output). */
-task(':build:components:spec', tsBuildTask(COMPONENTS_DIR));
 
 /** Copies assets (html, markdown) to build output. */
 task(':build:components:assets', copyTask([
-  path.join(COMPONENTS_DIR, '**/*.+!(ts|spec.ts)'),
+  path.join(COMPONENTS_DIR, '**/*.js'),
+  path.join(COMPONENTS_DIR, '**/*.json'),
   path.join(PROJECT_ROOT, 'README.md'),
   path.join(PROJECT_ROOT, 'LICENSE'),
 ], DIST_COMPONENTS_ROOT));
