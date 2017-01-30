@@ -3,7 +3,8 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'my-app',
-  template: `shine
+  template: `
+    <h1>Monday</h1>
     <shine-button></shine-button>
   `
 })

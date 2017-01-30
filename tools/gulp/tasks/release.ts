@@ -5,6 +5,7 @@ import * as path from 'path';
 import { 
   DIST_ROOT,
   DIST_COMPONENTS_ROOT, 
+  PLAYGROUND_DIST_ROOT,
   PROJECT_ROOT, 
   COMPONENTS_DIR, 
   HTML_MINIFIER_OPTIONS, 
@@ -33,11 +34,11 @@ const tsconfigPath = path.relative(PROJECT_ROOT, path.join(COMPONENTS_DIR, 'tsco
 task(':build:components:ts', tsBuildTask(COMPONENTS_DIR, 'tsconfig-esm.json'));
 
 task('clean', cleanTask(DIST_ROOT));
+task('clean:playground', cleanTask(PLAYGROUND_DIST_ROOT));
 
 /** Copies assets (html, markdown) to build output. */
 task(':build:components:assets', copyTask([
-  path.join(COMPONENTS_DIR, '**/*.js'),
-  path.join(COMPONENTS_DIR, '**/*.json'),
+  path.join(COMPONENTS_DIR, '**/*.+(js|json|html)'),
   path.join(PROJECT_ROOT, 'README.md'),
   path.join(PROJECT_ROOT, 'LICENSE'),
 ], DIST_COMPONENTS_ROOT));
@@ -124,8 +125,9 @@ task('ngc', ['build:components:release'], execNodeTask(
 
 task('build:release', function(done: () => void) {
   gulpRunSequence(
-    'clean', 
-    'ngc', 
+    'clean',
+    'clean:playground',
+    'ngc',
     done);
 });
 

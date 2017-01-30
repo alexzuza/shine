@@ -17,10 +17,5 @@
     "typeRoots": [
       "../../node_modules/@types/!(node)"
     ]
-  },
-  "angularCompilerOptions": {
-    "genDir": "../../dist/angular-shine",
-    "skipTemplateCodegen": true,
-    "debug": true
   }
 }

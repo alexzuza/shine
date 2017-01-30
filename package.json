@@ -4,7 +4,9 @@
   "description": "",
   "main": "",
   "scripts": {
-    "start": "lite-server"
+    "start": "gulp && tsc -p src/playground/tsconfig.json && concurrently \"npm run tsc:w\" \"npm run lite\"",
+    "lite": "lite-server",
+    "tsc:w": "tsc -p src/playground/tsconfig.json -w"
   },
   "author": "Alexey Zuev",
   "license": "MIT",

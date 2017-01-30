@@ -6,6 +6,7 @@ export const PROJECT_ROOT = join(__dirname, '../..');
 export const SOURCE_ROOT = join(PROJECT_ROOT, 'src');
 
 export const DIST_ROOT = join(PROJECT_ROOT, 'dist');
+export const PLAYGROUND_DIST_ROOT = join(PROJECT_ROOT, 'src/dist');
 export const DIST_COMPONENTS_ROOT = join(DIST_ROOT, 'angular-shine');
 
 export const SASS_AUTOPREFIXER_OPTIONS = {
