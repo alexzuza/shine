@@ -31,7 +31,7 @@ const gulpIf = require('gulp-if');
 const tsconfigPath = path.relative(PROJECT_ROOT, path.join(COMPONENTS_DIR, 'tsconfig.json'));
 
 /** Builds component typescript only (ESM output). */
-task(':build:components:ts', tsBuildTask(COMPONENTS_DIR, 'tsconfig-esm.json'));
+task(':build:components:ts', tsBuildTask(path.join(COMPONENTS_DIR, 'tsconfig-esm.json')));
 
 task('clean', cleanTask(DIST_ROOT));
 task('clean:playground', cleanTask(PLAYGROUND_DIST_ROOT));
