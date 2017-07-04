@@ -3,6 +3,7 @@ declare let require: any;
 require('../main.css');
 
 import { testParser } from './app/parser_test';
+import { parseTemplate } from './app/template_parser';
 
 
 let text = `
@@ -76,3 +77,5 @@ function handleHover() {
     Array.prototype.forEach.call(tokens, (x) => x.classList[action]('hover'));
   }
 }
+
+console.log(parseTemplate());
