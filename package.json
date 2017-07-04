@@ -2,47 +2,23 @@
   "name": "shine",
   "version": "1.0.0",
   "description": "",
-  "main": "",
+  "main": "index.js",
   "scripts": {
-    "start": "gulp && tsc -p src/playground/tsconfig.json && concurrently \"npm run tsc:w\" \"npm run lite\"",
-    "lite": "lite-server",
-    "tsc:w": "tsc -p src/playground/tsconfig.json -w"
+    "start": "webpack-dev-server --hot --inline"
   },
-  "author": "Alexey Zuev",
-  "license": "MIT",
-  "dependencies": {
-    "@angular/common": "^2.4.5",
-    "@angular/compiler": "^2.4.5",
-    "@angular/core": "^2.4.5",
-    "@angular/platform-browser": "^2.4.5",
-    "core-js": "^2.4.1",
-    "rxjs": "^5.0.1",
-    "systemjs": "0.19.38",
-    "zone.js": "^0.7.2"
-  },
+  "author": "",
+  "license": "ISC",
   "devDependencies": {
-    "@angular/compiler-cli": "^2.4.5",
-    "@angular/platform-browser-dynamic": "^2.4.5",
-
-    "@types/gulp": "^3.8.32",
-    "@types/node": "^6.0.34",
-    "@types/run-sequence": "^0.0.28",
-    
-    "concurrently": "^3.0.0",
-
-    "gulp": "^3.9.1",
-    "gulp-better-rollup": "^1.0.2",
-    "gulp-clean": "^0.3.2",
-    "gulp-clean-css": "^2.3.2",
-    "gulp-htmlmin": "^3.0.0",
-    "gulp-if": "^2.0.2",
-
-    "lite-server": "^2.2.2",
-    "tslint": "^3.13.0",
-    "ts-node": "^2.0.0",
-
-    "resolve-bin": "^0.4.0",
-    "run-sequence": "^1.2.2",
-    "typescript": "~2.0.10"
+    "awesome-typescript-loader": "^3.2.1",
+    "css-loader": "^0.28.4",
+    "style-loader": "^0.18.2",
+    "typescript": "2.3.2",
+    "webpack": "^2.2.0",
+    "webpack-dev-server": "^2.5.0"
+  },
+  "dependencies": {
+    "core-js": "^2.4.1",
+    "rxjs": "^5.4.1",
+    "zone.js": "^0.8.12"
   }
 }

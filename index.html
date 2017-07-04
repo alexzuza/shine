@@ -1,26 +1,39 @@
-<html>
-
+<!doctype html>
+<html lang="en">
 <head>
-  <title>Angular 2 QuickStart</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- 1. Load libraries -->
-  <!-- Polyfill(s) for older browsers -->
-  <script src="node_modules/core-js/client/shim.min.js"></script>
-
-  <script src="node_modules/zone.js/dist/zone.js"></script>
-  <script src="node_modules/reflect-metadata/Reflect.js"></script>
-  <script src="node_modules/systemjs/dist/system.src.js"></script>
-  <!-- 2. Configure SystemJS -->
-  <script src="systemjs.config.js"></script>
-  <script>
-    System.import('src').catch(function (err) { console.error(err); });
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Document</title>
+    <script src="node_modules/core-js/client/shim.min.js"></script>
 </head>
-<!-- 3. Display the application -->
-
 <body>
-  <my-app>Loading...</my-app>
-</body>
+    <div class="container">
+        <h1>Angular parser test</h1>
+        <h2>Lexer - Token</h2>
+        <div class="body">
+            <div class="content">
+                <pre><code id="code"></code></pre>
+            </div>
+            <div class="sidebar">
+                <h3>TokenType</h3>
+                <ul id="types-list" class="types"></ul>
+            </div>
+        </div>
+        <h2>Html parser - html.Node</h2>
+        <div class="body">
+            <div class="content">
+                <pre><code id="htmlCode"></code></pre>
+            </div>
+            <div class="sidebar">
+                <h3>Html Nodes</h3>
+                <ul id="types-list2"></ul>
+            </div>
+        </div>
+        <h2>// Transform ICU messages to angular directives</h2>
+        <h2>Template parser - AST</h2>
+    </div>
 
+    <script src="bundle.js"></script>
+</body>
 </html>

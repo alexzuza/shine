@@ -1,7 +1,9 @@
-/dist
-/src/dist
-node_modules
-.vscode
-.idea
-.DS_Store
 npm-debug.log
+node_modules
+
+*.js
+*.js.map
+
+# IDE #
+.idea/
+.vscode
