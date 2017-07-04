@@ -136,6 +136,6 @@ let parse =
   };
 
 
-export function parseTemplate() {
-  return parse('<div>', []);
+export function parseTemplate(template: string) {
+  return parse(template, []);
 }

@@ -47,7 +47,7 @@ let text = `
 `;
 
 text = `
-  <h1 [title]="1" (click)="d()">
+  <h1 [title]="1" (click)="d()" a="a" [prop]="test">
     Hooray
     {{ name }}
   </h1>
@@ -57,6 +57,9 @@ text = `
 
 testParser(text);
 htmlParserTest(text);
+
+const parsedTemplateResult = parseTemplate(text);
+console.log(parsedTemplateResult);
 
 handleHover();
 
@@ -78,4 +81,3 @@ function handleHover() {
   }
 }
 
-console.log(parseTemplate());
