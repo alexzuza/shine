@@ -114,6 +114,31 @@ function compileTemplateMetadata({encapsulation, template, templateUrl, styles, 
 }
 
 
+const astCode = document.getElementById('astCode');
+const list = document.getElementById('types-list3');
+
+function consumeLi(text: string, highlight: string, context) {
+  var li = document.createElement('li');
+
+  const div = document.createElement('div');
+  div.innerHTML = text;
+  div.dataset.highlight = highlight;
+  li.appendChild(div);
+
+  context.appendChild(li);
+
+  return li;
+}
+function consumeSpan(text: string, highlight: string): void {
+  let span = document.createElement('span');
+  span.textContent = text;
+
+  span.setAttribute('data-highlight', highlight);
+
+  astCode.appendChild(span);
+}
+
+
 const someAnimation = new CompileAnimationEntryMetadata('someAnimation', []);
 const someTemplate = compileTemplateMetadata({animations: [someAnimation]});
 const component = compileDirectiveMetadataCreate({
@@ -135,7 +160,61 @@ let parse =
       .template;
   };
 
+const ngIf = compileDirectiveMetadataCreate({
+               selector: '[ngIf]',
+               template: someTemplate,
+               type: createTypeMeta({reference: {filePath: someModuleUrl, name: 'NgIf'}}),
+               inputs: ['ngIf']
+             }).toSummary();
 
+
+let counter = 0;
 export function parseTemplate(template: string) {
-  return parse(template, []);
+  const result = parse(template, [ngIf]);
+
+  result.forEach(x => {
+
+    const name = Object.getPrototypeOf(x).constructor.name;
+    const type = name + counter++;
+    const span = x.sourceSpan.toString();
+
+    consumeSpan(span, type);
+    consumeLi(name, type, list);
+  });
+
+
 }
+
+
+
+
+// import {
+//     CompileDirectiveMetadata, CompileDirectiveSummary, CompilePipeSummary,
+//     CompilerConfig, CompileReflector, ElementSchemaRegistry, I18NHtmlParser, Parser,
+//     TEMPLATE_TRANSFORMS, TemplateAst, TemplateAstVisitor, TemplateParser
+// } from '@angular/compiler';
+// import { Inject, Optional, SchemaMetadata, ɵConsole as Console } from '@angular/core';
+
+// @Injectable()
+// export class TemplateParser2 extends TemplateParser {
+//     constructor(_config: CompilerConfig, _reflector: CompileReflector,
+//                 _exprParser: Parser, _schemaRegistry: ElementSchemaRegistry,
+//                 _htmlParser: I18NHtmlParser, _console: Console,
+//                 @Optional() @Inject(TEMPLATE_TRANSFORMS) public transforms: TemplateAstVisitor[]) {
+//         super(_config, _reflector, _exprParser, _schemaRegistry, _htmlParser, _console, transforms);
+
+//     }
+
+//     parse(component: CompileDirectiveMetadata, template: string, directives: CompileDirectiveSummary[], pipes: CompilePipeSummary[],
+//           schemas: SchemaMetadata[], templateUrl: string): {
+//         template: TemplateAst[];
+//         pipes: CompilePipeSummary[];
+//     } {
+//         const result = super.parse(component, template, directives, pipes, schemas, templateUrl);
+//         console.log(component.type.reference.name, result.template)
+//         return result;
+//     }
+// }
+
+
+// platformBrowserDynamic().bootstrapModule(AppModule, { providers: [ { provide: TemplateParser, useClass: TemplateParser2 }]});

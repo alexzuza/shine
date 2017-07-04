@@ -47,19 +47,18 @@ let text = `
 `;
 
 text = `
-  <h1 [title]="1" (click)="d()" a="a" [prop]="test">
-    Hooray
-    {{ name }}
-  </h1>
+  <div *ngIf="3">hi</div>
+  <ng-template #d let-t>Hello</ng-template>
 `;
 
 
-
+// Step 1
 testParser(text);
+// Step 2
 htmlParserTest(text);
+// Step 3
+parseTemplate(text);
 
-const parsedTemplateResult = parseTemplate(text);
-console.log(parsedTemplateResult);
 
 handleHover();
 
@@ -76,8 +75,8 @@ function handleHover() {
     if(e.target.dataset.all) {
       tagName = '';
     }
+
     const tokens = document.querySelectorAll(`${tagName}[data-highlight="${clazz}"]`);
     Array.prototype.forEach.call(tokens, (x) => x.classList[action]('hover'));
   }
 }
-
