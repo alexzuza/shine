@@ -4,131 +4,82 @@ import { ParseSourceSpan } from '../../angular/compiler/src/parse_util';
 import { split } from './util';
 
 
-// var Prism = require('prismjs');
+function augmentMarkup(type: string, span: ParseSourceSpan | string): string {
+  const text = span instanceof ParseSourceSpan ? span.toString().replace(/</g, '&lt;') : span;
+  return `<span data-highlight="${type}">${text}</span>`;
+}
 
-// declare let module: any;
-declare let require: any;
+function buildList() {
+  const list = document.getElementById('types-list');
 
-/*
- if (module.hot) {
- module.hot.accept('./parser/lexer', reload);
- }
- */
+  for (let enumMember in TokenType) {
+    const isValueProperty = parseInt(enumMember, 10) >= 0;
+    if (isValueProperty) {
+      const type = TokenType[enumMember];
 
-
-
-const typesListUl = document.getElementById('types-list');
-
-
-for (var enumMember in TokenType) {
-  var isValueProperty = parseInt(enumMember, 10) >= 0
-  if (isValueProperty) {
-    const type = TokenType[enumMember];
-
-    var li = document.createElement('li');
-    var div = document.createElement('div');
-    div.dataset.highlight = type.toLowerCase();
-    div.textContent = type;
-    li.appendChild(div);
-    typesListUl.appendChild(li);
+      const li = document.createElement('li');
+      const div = document.createElement('div');
+      div.dataset.highlight = type.toLowerCase();
+      div.textContent = type;
+      li.appendChild(div);
+      list.appendChild(li);
+    }
   }
 }
 
+
 let expansion: boolean;
-
-
-function encodedSpan(span: ParseSourceSpan) {
-  return span.toString().replace(/</g, '&lt;')
-}
 
 export function testParser(text: string) {
   const tokensAndErrors = tokenize(text, 'd', getHtmlTagDefinition, true);
 
   let result = '';
   const len = tokensAndErrors.tokens.length;
-  tokensAndErrors.tokens.forEach((x, i) => {
 
-    if(i > 0) {
+  tokensAndErrors.tokens.forEach((x, i) => {
+    if (i > 0) {
       result += split(tokensAndErrors.tokens[i - 1].sourceSpan.end, x.sourceSpan.start);
     }
 
-    let type = TokenType[x.type].toLowerCase();
-    if(x.type === TokenType.TAG_OPEN_START || x.type === TokenType.TAG_CLOSE || x.type === TokenType.TAG_OPEN_END) {
-      result += `<span data-highlight="${type}">${encodedSpan(x.sourceSpan)}</span>`;
+    const type = TokenType[x.type].toLowerCase();
+
+    if (x.type === TokenType.TAG_OPEN_END_VOID) {
+      result = result.slice(0, -1);
+      result += augmentMarkup(type, '/&gt;');
+      return;
     }
 
-    if(x.type === TokenType.TAG_OPEN_END_VOID) {
-      result += `<span data-highlight="${type}">/&gt;</span>`;
-    }
-
-    if(x.type === TokenType.EXPANSION_FORM_START) {
+    if (x.type === TokenType.EXPANSION_FORM_START) {
       expansion = true;
     }
-    if(x.type === TokenType.EXPANSION_FORM_END) {
+    if (x.type === TokenType.EXPANSION_FORM_END) {
       expansion = false;
     }
 
-    if(x.type === TokenType.EXPANSION_FORM_START ||
-      x.type === TokenType.EXPANSION_FORM_END ||
-      x.type === TokenType.EXPANSION_CASE_EXP_START ||
-      x.type === TokenType.EXPANSION_CASE_EXP_END) {
-      result += `<span data-highlight="${type}">${encodedSpan(x.sourceSpan)}</span>`;
+    if (x.type === TokenType.EXPANSION_CASE_VALUE) {
+      result += augmentMarkup(type, x.parts[0]) + ' ';
+      return;
     }
 
-    if(x.type === TokenType.EXPANSION_CASE_VALUE) {
-      result += `<span data-highlight="${type}">${x.parts[0]}</span> `;
+    if (x.type === TokenType.ATTR_VALUE) {
+      result = result.slice(0, -1);
+      result += '=' + augmentMarkup(type, x.sourceSpan);
+      return;
     }
 
-
-    if(x.type === TokenType.ATTR_NAME) {
-      result += `<span data-highlight="${type}">${encodedSpan(x.sourceSpan)}</span>`;
+    if (x.type === TokenType.EOF) {
+      result += augmentMarkup(type, ' ');
+      return;
     }
 
-    if(x.type === TokenType.ATTR_VALUE) {
-      result = result.slice(0, -1)
-      result += `=<span data-highlight="${type}">${encodedSpan(x.sourceSpan)}</span>`;
-    }
-
-    if(x.type === TokenType.TEXT || x.type === TokenType.ESCAPABLE_RAW_TEXT || x.type === TokenType.RAW_TEXT) {
-      result += `<span data-highlight="${type}">${encodedSpan(x.sourceSpan)}</span>`;
-    }
-
-
-    if(x.type === TokenType.RAW_TEXT && expansion && len > i + 1 && tokensAndErrors.tokens[i + 1].type === TokenType.RAW_TEXT) {
+    result += augmentMarkup(type, x.sourceSpan);
+    if (x.type === TokenType.RAW_TEXT && expansion && len > i + 1 && tokensAndErrors.tokens[i + 1].type === TokenType.RAW_TEXT) {
       result += `,`;
     }
-
-
-    if(x.type === TokenType.EOF) {
-      result += `<span data-highlight="${type}"> </span>`;
-    }
-
-    if(x.type === TokenType.COMMENT_START) {
-      result += `<span data-highlight="${type}">&lt;!--</span>`;
-    }
-
-    if(x.type === TokenType.COMMENT_END) {
-      result += `<span data-highlight="${type}">--&gt;</span>`;
-    }
-
-    if(x.type === TokenType.CDATA_START) {
-      result += `<span data-highlight="${type}">&lt;![CDATA[</span>`;
-    }
-
-    if(x.type === TokenType.CDATA_END) {
-      result += `<span data-highlight="${type}">]]&gt;</span>`;
-    }
-
-    if(x.type === TokenType.DOC_TYPE) {
-      result += `<span data-highlight="${type}">&lt;!${x.parts[0]}&gt;</span>`;
-    }
-
   });
 
-  // const html2 = Prism.highlight(text, Prism.languages.html);
+  const markup = document.getElementById('markup');
+  markup.innerHTML = result;
 
-  const code = document.getElementById('code');
-
-  code.innerHTML =  result;
-  // console.log(html2);
+  buildList();
 }

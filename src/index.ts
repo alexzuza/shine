@@ -9,7 +9,11 @@ import { parseTemplate } from './app/template_parser';
 let text = `
   <h1>Test {{ interpolation }}</h1>
   <div>
-    <child [prop1]="x" label="{{ prefix + title }}">name</child>
+    <child [prop1]="x" label="{{ prefix + title }}">
+      <ng-template>
+        <div *ngFor="let item of items">{{ item }}</div>
+      </ng-template>
+    </child>
   </div>
   <input type="text">
   <input type="text"/>
@@ -46,18 +50,19 @@ let text = `
   </svg>
 `;
 
-text = `
+/*text = `
   <div *ngIf="3">hi</div>
   <ng-template #d let-t>Hello</ng-template>
-`;
+`;*/
 
+//text = '<div *ngFor="let foo of foobars">{{foo}}</div>';
 
 // Step 1
 testParser(text);
 // Step 2
 htmlParserTest(text);
 // Step 3
-parseTemplate(text);
+// parseTemplate(text);
 
 
 handleHover();
@@ -80,3 +85,4 @@ function handleHover() {
     Array.prototype.forEach.call(tokens, (x) => x.classList[action]('hover'));
   }
 }
+

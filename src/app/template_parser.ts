@@ -11,7 +11,16 @@ import {
   ChangeDetectionStrategy, ComponentFactory, RendererType2, SchemaMetadata, ViewEncapsulation,
   ɵConsole as Console
 } from '@angular/core';
-import { TemplateAst } from '../../angular/compiler/src/template_parser/template_ast';
+import {
+  AttrAst, BoundDirectivePropertyAst,
+  BoundElementPropertyAst,
+  BoundEventAst, BoundTextAst, DirectiveAst,
+  ElementAst,
+  EmbeddedTemplateAst,
+  NgContentAst, ReferenceAst,
+  TemplateAst, TemplateAstVisitor,
+  templateVisitAll, TextAst, VariableAst
+} from '../../angular/compiler/src/template_parser/template_ast';
 import { TemplateParser } from '../../angular/compiler/src/template_parser/template_parser';
 import { CompilerConfig } from '../../angular/compiler/src/config';
 import { JitReflector } from '../../angular/compiler/src/jit/jit_reflector';
@@ -22,6 +31,10 @@ import { HtmlParser } from '../../angular/compiler/src/ml_parser/html_parser';
 import * as i18n from '../../angular/compiler/src/i18n/index';
 import { StaticSymbol } from '../../angular/compiler/src/aot/static_symbol';
 import { noUndefined } from '../../angular/compiler/src/util';
+import {
+  DEFAULT_INTERPOLATION_CONFIG,
+  InterpolationConfig
+} from '../../angular/compiler/src/ml_parser/interpolation_config';
 const config = new CompilerConfig();
 const reflector = new JitReflector();
 const lexer = new Lexer();
@@ -167,10 +180,123 @@ const ngIf = compileDirectiveMetadataCreate({
                inputs: ['ngIf']
              }).toSummary();
 
+const ngForOf = compileDirectiveMetadataCreate({
+  selector: '[ngFor][ngForOf]',
+  template: null,
+  type: createTypeMeta({reference: {filePath: someModuleUrl, name: 'ngForOf'}}),
+  inputs: ['ngForOf', 'ngForTemplate', 'ngForTrackBy']
+}).toSummary();
+
+
+
+function humanizeTplAstSourceSpans(
+  templateAsts: TemplateAst[]): any[] {
+  const humanizer = new TemplateHumanizer(true);
+  templateVisitAll(humanizer, templateAsts);
+  return humanizer.result;
+}
+
+class TemplateHumanizer implements TemplateAstVisitor {
+  result: any[] = [];
+
+  constructor(private includeSourceSpan: boolean){};
+
+  visitNgContent(ast: NgContentAst, context: any): any {
+    const res = [NgContentAst.name];
+    this.result.push(this._appendContext(ast, res));
+    return null;
+  }
+  visitEmbeddedTemplate(ast: EmbeddedTemplateAst, context: any): any {
+    const res = [EmbeddedTemplateAst.name];
+    this.result.push(this._appendContext(ast, res));
+    templateVisitAll(this, ast.attrs);
+    templateVisitAll(this, ast.outputs);
+    templateVisitAll(this, ast.references);
+    templateVisitAll(this, ast.variables);
+    templateVisitAll(this, ast.directives);
+    templateVisitAll(this, ast.children);
+    return null;
+  }
+  visitElement(ast: ElementAst, context: any): any {
+    const res = [ElementAst.name, ast.name];
+    this.result.push(this._appendContext(ast, res));
+    templateVisitAll(this, ast.attrs);
+    templateVisitAll(this, ast.inputs);
+    templateVisitAll(this, ast.outputs);
+    templateVisitAll(this, ast.references);
+    templateVisitAll(this, ast.directives);
+    templateVisitAll(this, ast.children);
+    return null;
+  }
+  visitReference(ast: ReferenceAst, context: any): any {
+    const res = [ReferenceAst.name, ast.name, ast.value];
+    this.result.push(this._appendContext(ast, res));
+    return null;
+  }
+  visitVariable(ast: VariableAst, context: any): any {
+    const res = [VariableAst, ast.name, ast.value];
+    this.result.push(this._appendContext(ast, res));
+    return null;
+  }
+  visitEvent(ast: BoundEventAst, context: any): any {
+    const res =
+      [BoundEventAst, ast.name, ast.target, ast.handler];
+    this.result.push(this._appendContext(ast, res));
+    return null;
+  }
+  visitElementProperty(ast: BoundElementPropertyAst, context: any): any {
+    const res = [
+      BoundElementPropertyAst, ast.type, ast.name, ast.value,
+      ast.unit
+    ];
+    this.result.push(this._appendContext(ast, res));
+    return null;
+  }
+  visitAttr(ast: AttrAst, context: any): any {
+    const res = [AttrAst, ast.name, ast.value];
+    this.result.push(this._appendContext(ast, res));
+    return null;
+  }
+  visitBoundText(ast: BoundTextAst, context: any): any {
+    const res = [BoundTextAst, ast.value];
+    this.result.push(this._appendContext(ast, res));
+    return null;
+  }
+  visitText(ast: TextAst, context: any): any {
+    const res = [TextAst, ast.value];
+    this.result.push(this._appendContext(ast, res));
+    return null;
+  }
+  visitDirective(ast: DirectiveAst, context: any): any {
+    const res = [DirectiveAst.name, ast.directive];
+    this.result.push(this._appendContext(ast, res));
+    templateVisitAll(this, ast.inputs);
+    templateVisitAll(this, ast.hostProperties);
+    templateVisitAll(this, ast.hostEvents);
+    return null;
+  }
+  visitDirectiveProperty(ast: BoundDirectivePropertyAst, context: any): any {
+    const res = [
+      BoundDirectivePropertyAst, ast.directiveName, ast.value
+    ];
+    this.result.push(this._appendContext(ast, res));
+    return null;
+  }
+
+  private _appendContext(ast: TemplateAst, input: any[]): any[] {
+    if (!this.includeSourceSpan) return input;
+    input.push(ast.sourceSpan !.toString());
+    return input;
+  }
+}
+
 
 let counter = 0;
 export function parseTemplate(template: string) {
-  const result = parse(template, [ngIf]);
+  const result = parse(template, [ngIf, ngForOf]);
+  debugger
+  const v = humanizeTplAstSourceSpans(result);
+
 
   result.forEach(x => {
 

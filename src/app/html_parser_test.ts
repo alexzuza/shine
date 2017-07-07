@@ -4,9 +4,9 @@ import { split } from './util';
 
 const htmlParser = new HtmlParser();
 const code = document.getElementById('htmlCode');
-const typesListUl = document.getElementById('types-list2');
+const list = document.getElementById('html-elements-list');
 
-function consumeSpan(text: string, highlight: string): void {
+function consumeCode(text: string, highlight: string): void {
   let span = document.createElement('span');
   span.textContent = text;
 
@@ -17,7 +17,7 @@ function consumeSpan(text: string, highlight: string): void {
 }
 
 function consumeLi(text: string, highlight: string, context: VisitorContext) {
-  var li = document.createElement('li');
+  const li = document.createElement('li');
 
   const div = document.createElement('div');
   div.innerHTML = text;
@@ -45,13 +45,13 @@ class MyVisitor implements html.Visitor {
     const start = element.startSourceSpan;
     const startOffset = start.start.offset;
 
-    consumeSpan('', type);
+    consumeCode('', type);
     const li = consumeLi(`Element:<strong>${element.name}</strong>`, type, context);
 
     if(element.attrs.length) {
-      consumeSpan(start.start.file.content.substring(start.start.offset, element.attrs[0].sourceSpan.start.offset), type);
+      consumeCode(start.start.file.content.substring(start.start.offset, element.attrs[0].sourceSpan.start.offset), type);
     } else {
-      consumeSpan(start.toString(), type);
+      consumeCode(start.toString(), type);
     }
 
     element.attrs.forEach((attr, i) => {
@@ -63,7 +63,7 @@ class MyVisitor implements html.Visitor {
     });
 
     if(element.attrs.length) {
-      consumeSpan(start.start.file.content.substring(element.attrs[element.attrs.length - 1].sourceSpan.end.offset, start.end.offset), type);
+      consumeCode(start.start.file.content.substring(element.attrs[element.attrs.length - 1].sourceSpan.end.offset, start.end.offset), type);
     }
 
     if(element.children.length) {
@@ -73,7 +73,7 @@ class MyVisitor implements html.Visitor {
     }
 
     if(element.endSourceSpan && element.startSourceSpan !== element.endSourceSpan) {
-      consumeSpan(element.endSourceSpan.toString(), type);
+      consumeCode(element.endSourceSpan.toString(), type);
     }
     return undefined;
   }
@@ -81,13 +81,13 @@ class MyVisitor implements html.Visitor {
   visitAttribute(attribute: html.Attribute, context: any): any {
     const type = 'html.attribute' + counter++;
     consumeAttr(`(attr:<strong>${attribute.name}</strong>)`, type, context);
-    consumeSpan(attribute.sourceSpan.toString(), type);
+    consumeCode(attribute.sourceSpan.toString(), type);
   }
 
   visitText(text: html.Text, context: VisitorContext): any {
     const type = 'html.text' + counter++;
     consumeLi('Text', type, context);
-    consumeSpan(text.sourceSpan.toString(), type);
+    consumeCode(text.sourceSpan.toString(), type);
   }
 
   visitComment(comment: html.Comment, context: any): any {
@@ -108,8 +108,8 @@ function visitAll(visitor: html.Visitor, nodes: html.Node[], context: VisitorCon
 const visitor = new MyVisitor();
 
 export function htmlParserTest(text) {
-  const result = htmlParser.parse(text, 'd', true);
-  visitAll(visitor, result.rootNodes, { liContainer: typesListUl});
+  const result = htmlParser.parse(text, '', true);
+  visitAll(visitor, result.rootNodes, { liContainer: list });
 }
 
 export interface VisitorContext {
