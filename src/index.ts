@@ -55,14 +55,22 @@ let text = `
   <ng-template #d let-t>Hello</ng-template>
 `;*/
 
-//text = '<div *ngFor="let foo of foobars">{{foo}}</div>';
+text = `
+  <div *ngFor="let foo of foobars" (click)="2" #d>
+    <div class="test">
+        text {{ x }}
+    </div>
+  </div>
+  <ng-template arr="3" (e)="3" #d let-a></ng-template>
+`;
+
 
 // Step 1
 testParser(text);
 // Step 2
 htmlParserTest(text);
 // Step 3
-// parseTemplate(text);
+parseTemplate(text);
 
 
 handleHover();

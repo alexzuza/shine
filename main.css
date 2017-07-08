@@ -67,3 +67,11 @@ span[data-highlight]:hover {
     background: brown;
 }
 
+
+
+.ast-block {
+    border: 1px solid;
+}
+.ast-props {
+    padding-left: 10px;
+}

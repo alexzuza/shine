@@ -16,7 +16,7 @@ function consumeCode(text: string, highlight: string): void {
   code.appendChild(span);
 }
 
-function consumeLi(text: string, highlight: string, context: VisitorContext) {
+function consumeLi(text: string, highlight: string, container) {
   const li = document.createElement('li');
 
   const div = document.createElement('div');
@@ -24,29 +24,29 @@ function consumeLi(text: string, highlight: string, context: VisitorContext) {
   div.dataset.highlight = highlight;
   li.appendChild(div);
 
-  context.liContainer.appendChild(li);
+  container.appendChild(li);
 
   return li;
 }
 
 
-function consumeAttr(text: string, highlight: string, context: VisitorContext) {
+function consumeAttr(text: string, highlight: string, container) {
   const div = document.createElement('div');
   div.innerHTML = text;
+  div.style.display = 'block';
   div.dataset.highlight = highlight;
-  context.liContainer.appendChild(div);
+  container.appendChild(div);
 }
 
 let counter = 1;
 class MyVisitor implements html.Visitor {
 
-  visitElement(element: html.Element, context: any): any {
+  visitElement(element: html.Element, container: any): any {
     const type = 'html.element' + counter++;
     const start = element.startSourceSpan;
-    const startOffset = start.start.offset;
 
     consumeCode('', type);
-    const li = consumeLi(`Element:<strong>${element.name}</strong>`, type, context);
+    const li = consumeLi(`Element:<strong>${element.name}</strong>`, type, container);
 
     if(element.attrs.length) {
       consumeCode(start.start.file.content.substring(start.start.offset, element.attrs[0].sourceSpan.start.offset), type);
@@ -55,11 +55,10 @@ class MyVisitor implements html.Visitor {
     }
 
     element.attrs.forEach((attr, i) => {
-      console.log(attr.sourceSpan.start.offset - startOffset);
       if(i > 0) {
         code.innerHTML += split(element.attrs[i - 1].sourceSpan.end, attr.sourceSpan.start)
       }
-      this.visitAttribute(attr, { liContainer: li});
+      this.visitAttribute(attr, li.children[0]);
     });
 
     if(element.attrs.length) {
@@ -68,7 +67,7 @@ class MyVisitor implements html.Visitor {
 
     if(element.children.length) {
       const liContainer = document.createElement('ul');
-      visitAll(this, element.children, { liContainer });
+      visitAll(this, element.children, liContainer);
       li.appendChild(liContainer);
     }
 
@@ -78,15 +77,16 @@ class MyVisitor implements html.Visitor {
     return undefined;
   }
 
-  visitAttribute(attribute: html.Attribute, context: any): any {
+  visitAttribute(attribute: html.Attribute, container: any): any {
     const type = 'html.attribute' + counter++;
-    consumeAttr(`(attr:<strong>${attribute.name}</strong>)`, type, context);
+
+    consumeAttr(` (attr:<strong>${attribute.name} - ${attribute.value}</strong>)`, type, container);
     consumeCode(attribute.sourceSpan.toString(), type);
   }
 
-  visitText(text: html.Text, context: VisitorContext): any {
+  visitText(text: html.Text, container): any {
     const type = 'html.text' + counter++;
-    consumeLi('Text', type, context);
+    consumeLi('Text', type, container);
     consumeCode(text.sourceSpan.toString(), type);
   }
 
@@ -101,17 +101,13 @@ class MyVisitor implements html.Visitor {
 }
 
 
-function visitAll(visitor: html.Visitor, nodes: html.Node[], context: VisitorContext) {
-  nodes.forEach(x => x.visit(visitor, context));
+function visitAll(visitor: html.Visitor, nodes: html.Node[], container) {
+  nodes.forEach(x => x.visit(visitor, container));
 }
 
 const visitor = new MyVisitor();
 
 export function htmlParserTest(text) {
   const result = htmlParser.parse(text, '', true);
-  visitAll(visitor, result.rootNodes, { liContainer: list });
-}
-
-export interface VisitorContext {
-  liContainer: any;
+  visitAll(visitor, result.rootNodes, list);
 }
