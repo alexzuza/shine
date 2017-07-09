@@ -72,6 +72,10 @@ span[data-highlight]:hover {
 .ast-block {
     border: 1px solid;
 }
+
+.ast-info {
+    border: 1px solid #336699;
+    padding: 5px;
+}
 .ast-props {
-    padding-left: 10px;
 }

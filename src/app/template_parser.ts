@@ -1,5 +1,3 @@
-
-
 import {
   CompileAnimationEntryMetadata,
   CompileDirectiveMetadata,
@@ -33,7 +31,7 @@ import { StaticSymbol } from '../../angular/compiler/src/aot/static_symbol';
 import { noUndefined } from '../../angular/compiler/src/util';
 
 import { ParseSourceSpan } from '../../angular/compiler/src/parse_util';
-import { split } from './util';
+import { consumeLi, split } from './util';
 const config = new CompilerConfig();
 const reflector = new JitReflector();
 const lexer = new Lexer();
@@ -173,24 +171,9 @@ const templateWithOutput =
 const astCode = document.getElementById('astCode');
 const list = document.getElementById('ast-list');
 
-function consumeLi(text: string, highlight: string, context, className = null) {
-  const li = document.createElement('li');
-
-  const div = document.createElement('div');
-  div.innerHTML = text;
-  div.dataset.highlight = highlight;
-  if(className) {
-    div.className = className;
-  }
-  li.appendChild(div);
-
-  context.appendChild(li);
-
-  return li;
-}
-
 let lastSourceSpan: ParseSourceSpan;
-function consumeSpan(sourceSpan: ParseSourceSpan, highlight: string): void {
+
+function consumeSpan(sourceSpan: ParseSourceSpan, highlight: string) {
   let span = document.createElement('span');
 
   if(lastSourceSpan === sourceSpan) {
@@ -230,13 +213,15 @@ let counter = 0;
 
 
 class TemplateHumanizer implements TemplateAstVisitor {
-  visitElement(ast: ElementAst, context: any): any {
+  consume(ast: TemplateAst, context, className?, postName?): any {
     const name = Object.getPrototypeOf(ast).constructor.name;
     const type = name + counter++;
     consumeSpan(ast.sourceSpan, type);
+    return consumeLi(name + (postName || ''), type, context, className);
+  }
 
-    const li = consumeLi(name + ' ' + ast.name, type, context, 'ast-block');
-
+  visitElement(ast: ElementAst, context: any): any {
+    const li = this.consume(ast, context, 'ast-block', ' ' + ast.name);
     const infoDiv = createDiv('ast-info', li.children[0]);
 
     ['attrs', 'inputs', 'outputs', 'references', 'directives'].forEach(key => {
@@ -251,29 +236,25 @@ class TemplateHumanizer implements TemplateAstVisitor {
     li.appendChild(liContainer);
   }
 
-  visitNgContent(ast: NgContentAst, context: any): any {
-    const name = Object.getPrototypeOf(ast).constructor.name;
-    const type = name + counter++;
-    consumeSpan(ast.sourceSpan, type);
-    consumeLi(name, type, context);
-  }
   visitEmbeddedTemplate(ast: EmbeddedTemplateAst, context: any): any {
-    const name = Object.getPrototypeOf(ast).constructor.name;
-    const type = name + counter++;
-    consumeSpan(ast.sourceSpan, type);
-    const li = consumeLi(name, type, context, 'ast-block');
+    const li = this.consume(ast, context, 'ast-block');
 
-    [ast.attrs, ast.outputs, ast.references, ast.variables, ast.directives].forEach(x => {
-      const div = document.createElement('div');
-      div.className = 'ast-props';
-      templateVisitAll(this, x, div);
-      li.children[0].appendChild(div);
+    const infoDiv = createDiv('ast-info', li.children[0]);
+
+    ['attrs', 'outputs', 'references', 'variables', 'directives'].forEach(key => {
+      const div = createDiv('ast-props', infoDiv);
+      const label = createDiv('ast-props__label', div);
+      label.textContent = key
+      templateVisitAll(this, ast[key], div);
     });
 
     const liContainer = document.createElement('ul');
     templateVisitAll(this, ast.children, liContainer);
     li.appendChild(liContainer);
-    return null;
+  }
+
+  visitNgContent(ast: NgContentAst, context: any): any {
+    this.consume(ast, context);
   }
 
   visitReference(ast: ReferenceAst, context: any): any {
@@ -284,7 +265,7 @@ class TemplateHumanizer implements TemplateAstVisitor {
   }
   visitEvent(ast: BoundEventAst, context: any): any {
     const res = [BoundEventAst, ast.name, ast.target, ast.handler];
-    context.innerHTML += 'outputs<strong>BoundEventAst</strong> - ' + ast.name + ' ' + ast.target + ' ' + ast.handler;
+    context.innerHTML += '<strong>BoundEventAst</strong> - ' + ast.name + ' ' + ast.target + ' ' + ast.handler;
   }
   visitElementProperty(ast: BoundElementPropertyAst, context: any): any {
     const res = [BoundElementPropertyAst, ast.type, ast.name, ast.value, ast.unit];
@@ -297,29 +278,28 @@ class TemplateHumanizer implements TemplateAstVisitor {
     context.innerHTML += '<strong>AttrAst</strong> - ' + ast.name + ': ' + ast.value;
   }
   visitBoundText(ast: BoundTextAst, context: any): any {
-    const name = Object.getPrototypeOf(ast).constructor.name;
-    const type = name + counter++;
-    consumeSpan(ast.sourceSpan, type);
-    consumeLi(name, type, context);
+    this.consume(ast, context);
   }
   visitText(ast: TextAst, context: any): any {
-    const name = Object.getPrototypeOf(ast).constructor.name;
-    const type = name + counter++;
-    consumeSpan(ast.sourceSpan, type);
-    consumeLi(name, type, context);
+    this.consume(ast, context);
   }
   visitDirective(ast: DirectiveAst, context: any): any {
-    context.innerHTML = `<strong>DirectiveAst</strong> - selector: ${ast.directive.selector}, name: ${ast.directive.type.reference.name}`;
 
-    [ast.inputs, ast.hostProperties, ast.hostEvents].forEach(x => {
-      const div = document.createElement('div');
-      div.className = 'ast-props';
-      templateVisitAll(this, x, div);
-      context.appendChild(div);
+    const div = createDiv('ast-block', context);
+    div.innerHTML = `<strong>DirectiveAst</strong> - selector: ${ast.directive.selector}, name: ${ast.directive.type.reference.name}`;
+
+
+    const infoDiv = createDiv('ast-info', div);
+
+    ['inputs', 'hostProperties', 'hostEvents'].forEach(key => {
+      const div = createDiv('ast-props', infoDiv);
+      const label = createDiv('ast-props__label', div);
+      label.textContent = key
+      templateVisitAll(this, ast[key], div);
     });
   }
   visitDirectiveProperty(ast: BoundDirectivePropertyAst, context: any): any {
-    context.innerHTML = 'inputs<strong>BoundDirectivePropertyAst</strong> - ' + ast.value;
+    context.innerHTML = '<strong>BoundDirectivePropertyAst</strong> - ' + ast.value;
   }
 }
 
@@ -332,8 +312,6 @@ export function parseTemplate(template: string) {
   let span = document.createElement('span');
   span.textContent += lastSourceSpan.end.file.content.substring(lastSourceSpan.end.offset);
   astCode.appendChild(span);
-
-
 }
 
 

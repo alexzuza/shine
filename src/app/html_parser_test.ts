@@ -1,6 +1,6 @@
 import { HtmlParser } from '../../angular/compiler/src/ml_parser/html_parser';
 import * as html from '../../angular/compiler/src/ml_parser/ast';
-import { split } from './util';
+import { consumeLi, split } from './util';
 
 const htmlParser = new HtmlParser();
 const code = document.getElementById('htmlCode');
@@ -14,19 +14,6 @@ function consumeCode(text: string, highlight: string): void {
   span.setAttribute('data-all', '1');
 
   code.appendChild(span);
-}
-
-function consumeLi(text: string, highlight: string, container) {
-  const li = document.createElement('li');
-
-  const div = document.createElement('div');
-  div.innerHTML = text;
-  div.dataset.highlight = highlight;
-  li.appendChild(div);
-
-  container.appendChild(li);
-
-  return li;
 }
 
 
@@ -45,7 +32,6 @@ class MyVisitor implements html.Visitor {
     const type = 'html.element' + counter++;
     const start = element.startSourceSpan;
 
-    consumeCode('', type);
     const li = consumeLi(`Element:<strong>${element.name}</strong>`, type, container);
 
     if(element.attrs.length) {
