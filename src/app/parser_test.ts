@@ -27,14 +27,10 @@ function buildList() {
   }
 }
 
-
-let expansion: boolean;
-
 export function testParser(text: string) {
   const tokensAndErrors = tokenize(text, 'd', getHtmlTagDefinition, true);
 
   let result = '';
-  const len = tokensAndErrors.tokens.length;
 
   tokensAndErrors.tokens.forEach((x, i) => {
     if (i > 0) {
@@ -43,39 +39,12 @@ export function testParser(text: string) {
 
     const type = TokenType[x.type].toLowerCase();
 
-    if (x.type === TokenType.TAG_OPEN_END_VOID) {
-      result = result.slice(0, -1);
-      result += augmentMarkup(type, '/&gt;');
-      return;
-    }
-
-    if (x.type === TokenType.EXPANSION_FORM_START) {
-      expansion = true;
-    }
-    if (x.type === TokenType.EXPANSION_FORM_END) {
-      expansion = false;
-    }
-
-    if (x.type === TokenType.EXPANSION_CASE_VALUE) {
-      result += augmentMarkup(type, x.parts[0]) + ' ';
-      return;
-    }
-
-    if (x.type === TokenType.ATTR_VALUE) {
-      result = result.slice(0, -1);
-      result += '=' + augmentMarkup(type, x.sourceSpan);
-      return;
-    }
-
     if (x.type === TokenType.EOF) {
       result += augmentMarkup(type, ' ');
       return;
     }
 
     result += augmentMarkup(type, x.sourceSpan);
-    if (x.type === TokenType.RAW_TEXT && expansion && len > i + 1 && tokensAndErrors.tokens[i + 1].type === TokenType.RAW_TEXT) {
-      result += `,`;
-    }
   });
 
   const markup = document.getElementById('markup');

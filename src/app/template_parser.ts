@@ -197,7 +197,11 @@ function consumeSpan(sourceSpan: ParseSourceSpan, highlight: string): void {
     return;
   }
   if(lastSourceSpan) {
-    span.textContent += split(lastSourceSpan.end, sourceSpan.start);
+    const space = split(lastSourceSpan.end, sourceSpan.start);
+    if(space) {
+      const content = document.createTextNode(space);
+      astCode.appendChild(content);
+    }
   }
 
   span.textContent = sourceSpan.toString();
@@ -215,10 +219,38 @@ function humanizeTplAstSourceSpans(templateAsts: TemplateAst[]): void {
 }
 
 
+function createDiv(className: string, parent) {
+  const div = document.createElement('div');
+  div.className = className;
+  parent.appendChild(div);
+  return div;
+}
+
 let counter = 0;
 
 
 class TemplateHumanizer implements TemplateAstVisitor {
+  visitElement(ast: ElementAst, context: any): any {
+    const name = Object.getPrototypeOf(ast).constructor.name;
+    const type = name + counter++;
+    consumeSpan(ast.sourceSpan, type);
+
+    const li = consumeLi(name + ' ' + ast.name, type, context, 'ast-block');
+
+    const infoDiv = createDiv('ast-info', li.children[0]);
+
+    ['attrs', 'inputs', 'outputs', 'references', 'directives'].forEach(key => {
+      const div = createDiv('ast-props', infoDiv);
+      const label = createDiv('ast-props__label', div);
+      label.textContent = key
+      templateVisitAll(this, ast[key], div);
+    });
+
+    const liContainer = document.createElement('ul');
+    templateVisitAll(this, ast.children, liContainer);
+    li.appendChild(liContainer);
+  }
+
   visitNgContent(ast: NgContentAst, context: any): any {
     const name = Object.getPrototypeOf(ast).constructor.name;
     const type = name + counter++;
@@ -243,23 +275,7 @@ class TemplateHumanizer implements TemplateAstVisitor {
     li.appendChild(liContainer);
     return null;
   }
-  visitElement(ast: ElementAst, context: any): any {
-    const name = Object.getPrototypeOf(ast).constructor.name;
-    const type = name + counter++;
-    consumeSpan(ast.sourceSpan, type);
-    const li = consumeLi(name, type, context, 'ast-block');
 
-    [ast.attrs, ast.inputs, ast.outputs, ast.references, ast.directives].forEach(x => {
-      const div = document.createElement('div');
-      div.className = 'ast-props';
-      templateVisitAll(this, x, div);
-      li.children[0].appendChild(div);
-    });
-
-    const liContainer = document.createElement('ul');
-    templateVisitAll(this, ast.children, liContainer);
-    li.appendChild(liContainer);
-  }
   visitReference(ast: ReferenceAst, context: any): any {
     context.innerHTML += '<strong>ReferenceAst</strong> - ' + ast.name + ': ' + (ast.value ? ast.value.identifier.reference.name : '');
   }
@@ -274,10 +290,11 @@ class TemplateHumanizer implements TemplateAstVisitor {
     const res = [BoundElementPropertyAst, ast.type, ast.name, ast.value, ast.unit];
 
     const type = PropertyBindingType[ast.type];
-    context.children[0].textContent += `\n\tinput(BoundElementPropertyAst) - \n\t\ttype: PropertyBindingType.${type}, \n\t\tname: ${ast.name}, \n\t\tval: ${ast.value}, \n\t\tunits: ${ast.unit}`;
+
+    context.innerHTML += `<strong>BoundElementPropertyAst</strong> - \n\t\ttype: PropertyBindingType.${type}, \n\t\tname: ${ast.name}, \n\t\tval: ${ast.value}, \n\t\tunits: ${ast.unit}`;
   }
   visitAttr(ast: AttrAst, context: any): any {
-    context.innerHTML = 'attr<strong>AttrAst</strong> - ' + ast.name + ': ' + ast.value;
+    context.innerHTML += '<strong>AttrAst</strong> - ' + ast.name + ': ' + ast.value;
   }
   visitBoundText(ast: BoundTextAst, context: any): any {
     const name = Object.getPrototypeOf(ast).constructor.name;
@@ -311,6 +328,12 @@ export function parseTemplate(template: string) {
   const result = parse(template, [ngIf, ngForOf, templateWithOutput]);
 
   humanizeTplAstSourceSpans(result);
+
+  let span = document.createElement('span');
+  span.textContent += lastSourceSpan.end.file.content.substring(lastSourceSpan.end.offset);
+  astCode.appendChild(span);
+
+
 }
 
 
