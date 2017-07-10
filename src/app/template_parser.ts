@@ -219,15 +219,14 @@ let counter = 0;
 
 
 class TemplateHumanizer implements TemplateAstVisitor {
-  consume(ast: TemplateAst, context, className?, postName?): any {
-    const name = Object.getPrototypeOf(ast).constructor.name;
+  consume(ast: TemplateAst, name: string, context, className?, postName?): any {
     const type = name + counter++;
     consumeSpan(ast.sourceSpan, type);
     return consumeLi(name + (postName || ''), type, context, className);
   }
 
   visitElement(ast: ElementAst, context: any): any {
-    const li = this.consume(ast, context, 'ast-block', ' ' + ast.name);
+    const li = this.consume(ast, 'ElementAst', context, 'ast-block', ' ' + ast.name);
     const infoDiv = createDiv('ast-info', li.children[0]);
 
     ['attrs', 'inputs', 'outputs', 'references', 'directives'].forEach(key => {
@@ -245,7 +244,7 @@ class TemplateHumanizer implements TemplateAstVisitor {
   }
 
   visitEmbeddedTemplate(ast: EmbeddedTemplateAst, context: any): any {
-    const li = this.consume(ast, context, 'ast-block');
+    const li = this.consume(ast, 'EmbeddedTemplateAst', context, 'ast-block');
 
     const infoDiv = createDiv('ast-info', li.children[0]);
     ['attrs', 'outputs', 'references', 'variables', 'directives'].forEach(key => {
@@ -263,7 +262,7 @@ class TemplateHumanizer implements TemplateAstVisitor {
   }
 
   visitNgContent(ast: NgContentAst, context: any): any {
-    this.consume(ast, context);
+    this.consume(ast, 'NgContentAst', context);
   }
 
   visitReference(ast: ReferenceAst, context: any): any {
@@ -289,10 +288,10 @@ class TemplateHumanizer implements TemplateAstVisitor {
     div.innerHTML += '<i>AttrAst</i> - ' + ast.name + ': ' + ast.value;
   }
   visitBoundText(ast: BoundTextAst, context: any): any {
-    this.consume(ast, context);
+    this.consume(ast, 'BoundTextAst', context);
   }
   visitText(ast: TextAst, context: any): any {
-    this.consume(ast, context);
+    this.consume(ast, 'TextAst', context);
   }
   visitDirective(ast: DirectiveAst, context: any): any {
     const div = createDiv('ast-block', context);

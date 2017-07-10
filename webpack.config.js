@@ -39,8 +39,9 @@ module.exports = {
       /angular(\\|\/)core(\\|\/)(esm(\\|\/)src|src)(\\|\/)linker/,
       __dirname
     ),
-  /*  new webpack.optimize.UglifyJsPlugin({
-      compress: { warnings: false }
+   /* new webpack.optimize.UglifyJsPlugin({
+      compress: { warnings: false },
+      output: {comments: false}
     })*/
   ]
 };
