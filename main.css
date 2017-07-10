@@ -93,3 +93,9 @@ span[data-highlight]:hover {
 .ast-item {
     padding-left: 5px;
 }
+
+.btn {
+    padding: 0 15px;
+    line-height: 34px;
+    cursor: pointer;
+}

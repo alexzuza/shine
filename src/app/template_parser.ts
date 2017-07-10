@@ -32,11 +32,17 @@ import { noUndefined } from '../../angular/compiler/src/util';
 
 import { ParseSourceSpan } from '../../angular/compiler/src/parse_util';
 import { consumeLi, split } from './util';
+import { MockSchemaRegistry } from './mocked_schema';
+import { ElementSchemaRegistry } from '../../angular/compiler/src/schema/element_schema_registry';
 const config = new CompilerConfig();
 const reflector = new JitReflector();
 const lexer = new Lexer();
 const parser = new Parser(lexer);
-const schema = new DomElementSchemaRegistry();
+let schema: ElementSchemaRegistry = new DomElementSchemaRegistry();
+
+schema =  new MockSchemaRegistry(
+  {'invalidProp': false}, {'mappedAttr': 'mappedProp'}, {'unknown': false, 'un-known': false},
+  ['onEvent'], ['onEvent']);
 
 const baseHtmlParser = new HtmlParser();
 const console = new Console()
@@ -270,7 +276,7 @@ class TemplateHumanizer implements TemplateAstVisitor {
   }
   visitEvent(ast: BoundEventAst, context: any): any {
     const div = createDiv('ast-item', context);
-    div.innerHTML += '<i>BoundEventAst</i> - ' + ast.name + ' ' + ast.target + ' ' + ast.handler;
+    div.innerHTML += '<i>BoundEventAst</i> - name: ' + ast.name + ', target: ' + ast.target + ', handler: ' + ast.handler;
   }
   visitElementProperty(ast: BoundElementPropertyAst, context: any): any {
     const div = createDiv('ast-item', context);
@@ -308,15 +314,24 @@ class TemplateHumanizer implements TemplateAstVisitor {
 
 
 export function parseTemplate(template: string) {
-  const result = parse(template, [ngIf, ngForOf, templateWithOutput]);
+  let result;
+  try {
+    result = parse(template, [ngIf, ngForOf, templateWithOutput]);
+  } catch (e) {
+    astCode.textContent = e.ngParseErrors + '';
+    return;
+  }
+
 
   astCode.innerHTML = list.innerHTML = '';
   lastSourceSpan = null;
   humanizeTplAstSourceSpans(result);
 
-  let span = document.createElement('span');
-  span.textContent += lastSourceSpan.end.file.content.substring(lastSourceSpan.end.offset);
-  astCode.appendChild(span);
+  if(lastSourceSpan) {
+    let span = document.createElement('span');
+    span.textContent += lastSourceSpan.end.file.content.substring(lastSourceSpan.end.offset);
+    astCode.appendChild(span);
+  }
 }
 
 
