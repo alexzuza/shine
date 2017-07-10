@@ -65,15 +65,26 @@ text = `
 `;
 
 
-// Step 1
-testParser(text);
-// Step 2
-htmlParserTest(text);
-// Step 3
-parseTemplate(text);
+const inputBox: any = document.getElementById('input');
+const runBtn = document.getElementById('runBtn');
+
+runBtn.addEventListener('click', () => {
+  text = inputBox.value;
+  // Step 1
+  testParser(text);
+  // Step 2
+  htmlParserTest(text);
+  // Step 3
+  parseTemplate(text);
+
+  handleHover();
+});
 
 
-handleHover();
+
+
+
+
 
 function handleHover() {
   const types = document.querySelectorAll('[data-highlight]');

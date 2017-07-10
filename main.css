@@ -68,6 +68,14 @@ span[data-highlight]:hover {
 }
 
 
+#input {
+    width: 100%;
+    box-sizing: border-box;
+    background: #333;
+    color: #fff;
+    font-size: 16px;
+    padding: 20px;
+}
 
 .ast-block {
     border: 1px solid;

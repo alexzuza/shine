@@ -310,6 +310,8 @@ class TemplateHumanizer implements TemplateAstVisitor {
 export function parseTemplate(template: string) {
   const result = parse(template, [ngIf, ngForOf, templateWithOutput]);
 
+  astCode.innerHTML = list.innerHTML = '';
+  lastSourceSpan = null;
   humanizeTplAstSourceSpans(result);
 
   let span = document.createElement('span');

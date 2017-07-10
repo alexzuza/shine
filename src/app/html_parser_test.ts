@@ -95,5 +95,6 @@ const visitor = new MyVisitor();
 
 export function htmlParserTest(text) {
   const result = htmlParser.parse(text, '', true);
+  code.innerHTML = list.innerHTML = '';
   visitAll(visitor, result.rootNodes, list);
 }

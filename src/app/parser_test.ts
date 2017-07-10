@@ -11,7 +11,7 @@ function augmentMarkup(type: string, span: ParseSourceSpan | string): string {
 
 function buildList() {
   const list = document.getElementById('types-list');
-
+  list.innerHTML = '';
   for (let enumMember in TokenType) {
     const isValueProperty = parseInt(enumMember, 10) >= 0;
     if (isValueProperty) {
