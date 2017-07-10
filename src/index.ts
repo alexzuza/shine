@@ -56,7 +56,7 @@ let text = `
 `;*/
 
 text = `
-  <div *ngFor="let foo of foobars" (click)="2" #d>
+  <div *ngFor="let foo of foobars" (click)="2" (blur)="0" #d>
     <div class="test">
         text {{ x }}
     </div>

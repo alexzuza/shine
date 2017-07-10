@@ -227,30 +227,33 @@ class TemplateHumanizer implements TemplateAstVisitor {
     ['attrs', 'inputs', 'outputs', 'references', 'directives'].forEach(key => {
       const div = createDiv('ast-props', infoDiv);
       const label = createDiv('ast-props__label', div);
-      label.textContent = key
+      label.textContent = `${key}(${ast[key].length})`;
       templateVisitAll(this, ast[key], div);
     });
 
-    const liContainer = document.createElement('ul');
-    templateVisitAll(this, ast.children, liContainer);
-    li.appendChild(liContainer);
+    if(ast.children.length) {
+      const liContainer = document.createElement('ul');
+      templateVisitAll(this, ast.children, liContainer);
+      li.appendChild(liContainer);
+    }
   }
 
   visitEmbeddedTemplate(ast: EmbeddedTemplateAst, context: any): any {
     const li = this.consume(ast, context, 'ast-block');
 
     const infoDiv = createDiv('ast-info', li.children[0]);
-
     ['attrs', 'outputs', 'references', 'variables', 'directives'].forEach(key => {
       const div = createDiv('ast-props', infoDiv);
       const label = createDiv('ast-props__label', div);
-      label.textContent = key
+      label.textContent = `${key}(${ast[key].length})`;
       templateVisitAll(this, ast[key], div);
     });
 
-    const liContainer = document.createElement('ul');
-    templateVisitAll(this, ast.children, liContainer);
-    li.appendChild(liContainer);
+    if(ast.children.length) {
+      const liContainer = document.createElement('ul');
+      templateVisitAll(this, ast.children, liContainer);
+      li.appendChild(liContainer);
+    }
   }
 
   visitNgContent(ast: NgContentAst, context: any): any {
@@ -258,24 +261,26 @@ class TemplateHumanizer implements TemplateAstVisitor {
   }
 
   visitReference(ast: ReferenceAst, context: any): any {
-    context.innerHTML += '<strong>ReferenceAst</strong> - ' + ast.name + ': ' + (ast.value ? ast.value.identifier.reference.name : '');
+    const div = createDiv('ast-item', context);
+    div.innerHTML += '<i>ReferenceAst</i> - ' + ast.name + ': ' + (ast.value ? ast.value.identifier.reference.name : '');
   }
   visitVariable(ast: VariableAst, context: any): any {
-    context.innerHTML += '<strong>VariableAst</strong> - ' + ast.name + ': ' + ast.value;
+    const div = createDiv('ast-item', context);
+    div.innerHTML += '<i>VariableAst</i> - ' + ast.name + ': ' + ast.value;
   }
   visitEvent(ast: BoundEventAst, context: any): any {
-    const res = [BoundEventAst, ast.name, ast.target, ast.handler];
-    context.innerHTML += '<strong>BoundEventAst</strong> - ' + ast.name + ' ' + ast.target + ' ' + ast.handler;
+    const div = createDiv('ast-item', context);
+    div.innerHTML += '<i>BoundEventAst</i> - ' + ast.name + ' ' + ast.target + ' ' + ast.handler;
   }
   visitElementProperty(ast: BoundElementPropertyAst, context: any): any {
-    const res = [BoundElementPropertyAst, ast.type, ast.name, ast.value, ast.unit];
-
+    const div = createDiv('ast-item', context);
     const type = PropertyBindingType[ast.type];
 
-    context.innerHTML += `<strong>BoundElementPropertyAst</strong> - \n\t\ttype: PropertyBindingType.${type}, \n\t\tname: ${ast.name}, \n\t\tval: ${ast.value}, \n\t\tunits: ${ast.unit}`;
+    div.innerHTML += `<i>BoundElementPropertyAst</i> - \n\t\ttype: PropertyBindingType.${type}, \n\t\tname: ${ast.name}, \n\t\tval: ${ast.value}, \n\t\tunits: ${ast.unit}`;
   }
   visitAttr(ast: AttrAst, context: any): any {
-    context.innerHTML += '<strong>AttrAst</strong> - ' + ast.name + ': ' + ast.value;
+    const div = createDiv('ast-item', context);
+    div.innerHTML += '<i>AttrAst</i> - ' + ast.name + ': ' + ast.value;
   }
   visitBoundText(ast: BoundTextAst, context: any): any {
     this.consume(ast, context);
@@ -284,22 +289,20 @@ class TemplateHumanizer implements TemplateAstVisitor {
     this.consume(ast, context);
   }
   visitDirective(ast: DirectiveAst, context: any): any {
-
     const div = createDiv('ast-block', context);
-    div.innerHTML = `<strong>DirectiveAst</strong> - selector: ${ast.directive.selector}, name: ${ast.directive.type.reference.name}`;
-
+    div.innerHTML = `<i>DirectiveAst</i> - selector: ${ast.directive.selector}, name: ${ast.directive.type.reference.name}`;
 
     const infoDiv = createDiv('ast-info', div);
-
     ['inputs', 'hostProperties', 'hostEvents'].forEach(key => {
       const div = createDiv('ast-props', infoDiv);
       const label = createDiv('ast-props__label', div);
-      label.textContent = key
+      label.textContent = `${key}(${ast[key].length})`;
       templateVisitAll(this, ast[key], div);
     });
   }
   visitDirectiveProperty(ast: BoundDirectivePropertyAst, context: any): any {
-    context.innerHTML = '<strong>BoundDirectivePropertyAst</strong> - ' + ast.value;
+    const div = createDiv('ast-item', context);
+    div.innerHTML = '<i>BoundDirectivePropertyAst</i> - ' + ast.value;
   }
 }
 
