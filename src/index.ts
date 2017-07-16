@@ -4,6 +4,9 @@ require('../main.css');
 
 import { testParser } from './app/parser_test';
 import { parseTemplate } from './app/template_parser';
+import { CompileDirectiveMetadata, CompileTemplateMetadata } from '../angular/compiler/src/compile_metadata';
+import { ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
+import { compileComponent, getComponentViewClass, getTypeMetadata } from './app/view_compiler';
 
 
 let text = `
@@ -68,6 +71,10 @@ text = `
 const inputBox: any = document.getElementById('input');
 const runBtn = document.getElementById('runBtn');
 
+class Zuz {
+
+}
+
 runBtn.addEventListener('click', () => {
   text = inputBox.value;
   // Step 1
@@ -75,11 +82,43 @@ runBtn.addEventListener('click', () => {
   // Step 2
   htmlParserTest(text);
   // Step 3
-  parseTemplate(text);
+  const parsedResult = parseTemplate(text);
 
+  const compMeta = CompileDirectiveMetadata.create({
+    isHost: false,
+    selector: 'zuz',
+    exportAs: null,
+    isComponent: true,
+    type: getTypeMetadata(Zuz),
+    template: new CompileTemplateMetadata({
+      encapsulation: ViewEncapsulation.Emulated,
+      template: text,
+      templateUrl: null,
+      styles: [],
+      styleUrls: [],
+      externalStylesheets: [],
+      ngContentSelectors: [],
+      animations: [],
+      interpolation: null,
+      isInline: true
+    }),
+    changeDetection: ChangeDetectionStrategy.Default,
+    inputs: [],
+    outputs: [],
+    host: {},
+    providers: [],
+    viewProviders: [],
+    queries: [],
+    viewQueries: [],
+    entryComponents: [],
+    componentViewType: getComponentViewClass(Zuz),
+    rendererType: <any>{},
+    componentFactory: null
+  });
+
+  compileComponent(compMeta, parsedResult);
   handleHover();
 });
-
 
 
 
@@ -104,4 +143,5 @@ function handleHover() {
     Array.prototype.forEach.call(tokens, (x) => x.classList[action]('hover'));
   }
 }
+
 

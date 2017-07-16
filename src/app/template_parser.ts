@@ -331,6 +331,7 @@ export function parseTemplate(template: string) {
     span.textContent += lastSourceSpan.end.file.content.substring(lastSourceSpan.end.offset);
     astCode.appendChild(span);
   }
+  return result;
 }
 
 
