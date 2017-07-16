@@ -75,8 +75,8 @@ function createOutputContext(): OutputContext {
 
 const styleCompiler = new StyleCompiler(new UrlResolver());
 export function compileComponent(compMeta, parsedTemplate) {
-  debugger
   const outputContext = createOutputContext();
+  debugger
 
   const componentStylesheet = styleCompiler.compileComponent(outputContext, compMeta);
   viewCompiler.compileComponent(

@@ -432,3 +432,19 @@ export const CATCH_ERROR_VAR = new ReadVarExpr(BuiltinVar.CatchError, null, null
 export const CATCH_STACK_VAR = new ReadVarExpr(BuiltinVar.CatchStack, null, null);
 export const NULL_EXPR = new LiteralExpr(null, null, null);
 export const TYPED_NULL_EXPR = new LiteralExpr(null, INFERRED_TYPE, null);
+
+export function variable(
+  name: string, type?: Type | null, sourceSpan?: ParseSourceSpan | null): ReadVarExpr {
+  return new ReadVarExpr(name, type, sourceSpan);
+}
+
+export function literalArr(
+  values: Expression[], type?: Type | null,
+  sourceSpan?: ParseSourceSpan | null): LiteralArrayExpr {
+  return new LiteralArrayExpr(values, type, sourceSpan);
+}
+
+export function literal(
+  value: any, type?: Type | null, sourceSpan?: ParseSourceSpan | null): LiteralExpr {
+  return new LiteralExpr(value, type, sourceSpan);
+}

@@ -7,6 +7,7 @@ import { parseTemplate } from './app/template_parser';
 import { CompileDirectiveMetadata, CompileTemplateMetadata } from '../angular/compiler/src/compile_metadata';
 import { ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
 import { compileComponent, getComponentViewClass, getTypeMetadata } from './app/view_compiler';
+import { emit } from './app/emitter_test';
 
 
 let text = `
@@ -117,6 +118,7 @@ runBtn.addEventListener('click', () => {
   });
 
   compileComponent(compMeta, parsedResult);
+
   handleHover();
 });
 

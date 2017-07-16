@@ -166,7 +166,7 @@ class ToJsonSerializer extends ValueTransformer {
           __symbol: index,
           name: symbol.name,
           // We convert the source filenames tinto output filenames,
-          // as the generated summary file will be used when teh current
+          // as the generated summary file will be used when the current
           // compilation unit is used as a library
           filePath: this.summaryResolver.getLibraryFileName(symbol.filePath),
           importAs: importAs
@@ -298,7 +298,7 @@ class ForJitSerializer {
       }
       visitStringMap(map: {[key: string]: any}, context: any): any {
         return new o.LiteralMapExpr(Object.keys(map).map(
-            (key) => new o.LiteralMapEntry(key, visitValue(map[key], this, context))));
+            (key) => new o.LiteralMapEntry(key, visitValue(map[key], this, context), false)));
       }
       visitPrimitive(value: any, context: any): any { return o.literal(value); }
       visitOther(value: any, context: any): any {
