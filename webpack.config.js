@@ -1,5 +1,6 @@
- var path = require('path');
+var path = require('path');
 var webpack = require('webpack');
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = {
   entry: './src/index.ts',
@@ -8,6 +9,7 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     sourceMapFilename: '[file].map'
   },
+  //devtool: 'nosources-source-map',
   devtool: 'cheap-module-source-map',
   resolve: {
     extensions: ['.ts', '.js', '.css'],
@@ -27,10 +29,7 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: [
-          { loader: "style-loader" },
-          { loader: "css-loader" }
-        ]
+        loader: ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader' })
       }
     ]
   },
@@ -39,9 +38,10 @@ module.exports = {
       /angular(\\|\/)core(\\|\/)(esm(\\|\/)src|src)(\\|\/)linker/,
       __dirname
     ),
+    new ExtractTextPlugin("[name].css"),
    /* new webpack.optimize.UglifyJsPlugin({
-      compress: { warnings: false },
-      output: {comments: false}
-    })*/
+     compress: { warnings: false },
+     output: {comments: false}
+     })*/
   ]
 };

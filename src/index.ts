@@ -61,22 +61,22 @@ let text = `
 
 text = `
   <div *ngFor="let foo of foobars" (click)="2" (blur)="0" #d>
-    <div class="test">
-        text {{ x }}
-    </div>
+    Hello
   </div>
-  <ng-template arr="3" (e)="3" #d let-a></ng-template>
 `;
 
 
 const inputBox: any = document.getElementById('input');
 const runBtn = document.getElementById('runBtn');
 
+inputBox.value = text;
 class Zuz {
 
 }
 
-runBtn.addEventListener('click', () => {
+runBtn.addEventListener('click', parse);
+parse();
+function parse() {
   text = inputBox.value;
   // Step 1
   testParser(text);
@@ -120,9 +120,7 @@ runBtn.addEventListener('click', () => {
   compileComponent(compMeta, parsedResult);
 
   handleHover();
-});
-
-
+}
 
 
 

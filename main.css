@@ -1,14 +1,72 @@
+
+body {
+    margin: 0;
+    background-color: #f0f0f0;
+    color: #333;
+    font: 14px helvetica,arial,freesans,clean,sans-serif;
+    text-align: center;
+    -webkit-font-smoothing: antialiased;
+}
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
+    margin: 80px auto;
+    max-width: 980px;
+    padding: 25px;
+    box-sizing: border-box;
+    background: #fff;
+    text-align: left;
+    display: inline-block;
+    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
 }
 
 .body {
     display: flex;
 }
 
-h1, h2 {
+.header {
+    position: fixed;
+    left: 0;
+    width: 100%;
+    background: #334658;
+    color: #fff;
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.24);
+}
+
+.logo {
+    display: flex;
+    max-width: 958px;
+    margin: 0 auto;
+    text-decoration: none;
+    color: #fff;
+    align-items: center;
+}
+
+
+.hash {
+    display: block;
+    margin-top: 20px;
+    font-size: 20px;
+    color: #369;
+    text-decoration: none;
+}
+
+.hash h3 {
+    padding-top: 70px;
+    margin-top: -70px;
     margin-bottom: 0;
+}
+.menu li {
+    margin-bottom: 10px;
+    line-height: 30px;
+    font-size: 16px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+h2 {
+    margin-top: 0;
 }
 pre {
     padding: 20px;
@@ -21,9 +79,13 @@ pre {
 }
 
 .sidebar {
-    margin-left: 30px;
+    width: 30%;
+    padding-left: 25px;
 }
 
+textarea {
+    min-height: 140px;
+}
 ul {
     margin: 0;
     padding: 0;
