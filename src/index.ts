@@ -145,3 +145,5 @@ function handleHover() {
 }
 
 
+const shadow = document.getElementById('shadow');
+shadow.parentNode.removeChild(shadow);
