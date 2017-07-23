@@ -2,12 +2,11 @@ import { htmlParserTest } from './app/html_parser_test';
 declare let require: any;
 require('../main.css');
 
-import { testParser } from './app/parser_test';
+import { testParser } from './app/token_parser';
 import { parseTemplate } from './app/template_parser';
 import { CompileDirectiveMetadata, CompileTemplateMetadata } from '../angular/compiler/src/compile_metadata';
 import { ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
 import { compileComponent, getComponentViewClass, getTypeMetadata } from './app/view_compiler';
-import { emit } from './app/emitter_test';
 
 
 let text = `
@@ -60,9 +59,9 @@ let text = `
 `;*/
 
 text = `
-  <div *ngFor="let foo of foobars" (click)="2" (blur)="0" #d>
-    Hello
-  </div>
+<div *ngFor="let foo of foobars" (click)="2" (blur)="0" #d>
+  Hello
+</div>
 `;
 
 

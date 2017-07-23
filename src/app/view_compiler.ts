@@ -8,13 +8,16 @@ import { DomElementSchemaRegistry } from '../../angular/compiler/src/schema/dom_
 import { OutputContext } from '../../angular/compiler/src/util';
 import { identifierName } from '../../angular/compiler/src/compile_metadata';
 import * as ir from '../../angular/compiler/src/output/output_ast';
-import { jitStatements } from '../../angular/compiler/src/output/output_jit';
+import { JitEmitterVisitor, jitStatements } from '../../angular/compiler/src/output/output_jit';
 import { StyleCompiler } from '../../angular/compiler/src/style_compiler';
 import { UrlResolver } from '../../angular/compiler/src/url_resolver';
 
 import * as cpl from '../../angular/compiler/src/compile_metadata';
 import {getAllLifecycleHooks} from '../../angular/compiler/src/lifecycle_reflector';
 import { stringify } from '../../angular/core/src/util';
+import { EmitterVisitorContext } from '../../angular/compiler/src/output/abstract_emitter';
+
+declare let hljs: any;
 
 const config =  new CompilerConfig({
   useJit: true,
@@ -26,7 +29,7 @@ const reflector = new JitReflector();
 let schema: ElementSchemaRegistry = new DomElementSchemaRegistry();
 
 const viewCompiler = new ViewCompiler(config, reflector, schema);
-
+const factoryCode = document.getElementById('factoryCode');
 
 export function getTypeMetadata(
   type: Type<any>, dependencies: any[]|null = null,
@@ -67,6 +70,8 @@ function _createProxyClass(baseType: any, name: string): cpl.ProxyClass {
 }
 
 
+
+
 function createOutputContext(): OutputContext {
   const importExpr = (symbol: any) =>
     ir.importExpr({name: identifierName(symbol), moduleName: null, runtime: symbol});
@@ -82,5 +87,15 @@ export function compileComponent(compMeta, parsedTemplate) {
     outputContext, compMeta, parsedTemplate, ir.variable(componentStylesheet.stylesVar),
     []);
 
-  jitStatements('ng:///test.js', outputContext.statements);
+
+  var converter = new JitEmitterVisitor();
+  var ctx = EmitterVisitorContext.createRoot();
+  converter.visitAllStatements(outputContext.statements, ctx);
+  // converter.createReturnStmt(ctx);
+
+  console.log(ctx.toSource());
+  factoryCode.innerHTML = ctx.toSource();
+
+  hljs.highlightBlock(factoryCode);
+  // jitStatements('ng:///test.js', outputContext.statements);
 }

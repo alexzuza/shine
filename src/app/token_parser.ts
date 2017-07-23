@@ -9,8 +9,10 @@ function augmentMarkup(type: string, span: ParseSourceSpan | string): string {
   return `<span data-highlight="${type}">${text}</span>`;
 }
 
+let tokensLi = [];
 function buildList() {
   const list = document.getElementById('types-list');
+  tokensLi = [];
   list.innerHTML = '';
   for (let enumMember in TokenType) {
     const isValueProperty = parseInt(enumMember, 10) >= 0;
@@ -18,6 +20,9 @@ function buildList() {
       const type = TokenType[enumMember];
 
       const li = document.createElement('li');
+      li.id = 'token_' + type.toLowerCase();;
+      li.className = 'hidden';
+      tokensLi.push(li);
       const div = document.createElement('div');
       div.dataset.highlight = type.toLowerCase();
       div.textContent = type;
@@ -28,6 +33,7 @@ function buildList() {
 }
 
 export function testParser(text: string) {
+  buildList();
   const tokensAndErrors = tokenize(text, 'd', getHtmlTagDefinition, true);
 
   let result = '';
@@ -38,7 +44,7 @@ export function testParser(text: string) {
     }
 
     const type = TokenType[x.type].toLowerCase();
-
+    tokensLi.find(x => x.id === 'token_' + type).className = '';
     if (x.type === TokenType.EOF) {
       result += augmentMarkup(type, ' ');
       return;
@@ -49,6 +55,5 @@ export function testParser(text: string) {
 
   const markup = document.getElementById('markup');
   markup.innerHTML = result;
-
-  buildList();
 }
+
