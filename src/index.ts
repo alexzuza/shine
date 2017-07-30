@@ -45,7 +45,7 @@ let text = `
   before{one.two, three, =4 {four}}after
   {one.two, three, =4 { {xx, yy, =x {one}} }}
 
-  <comp/>
+  <comp></comp>
   <span>{a, b, =4 {c}}</span>
   <t a="{{v}}" b="s{{m}}e" c="s{{m//c}}e">
   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -53,13 +53,17 @@ let text = `
   </svg>
 `;
 
-/*text = `
+text = `
   <div *ngIf="3">hi</div>
   <ng-template #d let-t>Hello</ng-template>
-`;*/
+`;
 
 text = `
-<div *ngFor="let foo of foobars" (click)="2" (blur)="0" #d>
+<div *ngFor="let foo of foobars"
+   [test]="sdsd"
+   title="ss"
+   (click)="2"
+   (blur)="0" #d>
   Hello
 </div>
 `;

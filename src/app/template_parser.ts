@@ -38,9 +38,7 @@ const config = new CompilerConfig();
 const reflector = new JitReflector();
 const lexer = new Lexer();
 const parser = new Parser(lexer);
-let schema: ElementSchemaRegistry = new DomElementSchemaRegistry();
-
-schema =  new MockSchemaRegistry(
+let schema: ElementSchemaRegistry = new MockSchemaRegistry(
   {'invalidProp': false}, {'mappedAttr': 'mappedProp'}, {'unknown': false, 'un-known': false},
   ['onEvent'], ['onEvent']);
 
@@ -171,18 +169,21 @@ const templateWithOutput =
   }).toSummary();
 
 
-
-
-
 const astCode = document.getElementById('astCode');
 const list = document.getElementById('ast-list');
 
 let lastSourceSpan: ParseSourceSpan;
+let lastSpan: any;
 
 function consumeSpan(sourceSpan: ParseSourceSpan, highlight: string) {
   let span = document.createElement('span');
+  span.setAttribute('data-highlight', highlight);
 
   if(lastSourceSpan === sourceSpan) {
+    span.innerHTML = lastSpan.innerHTML;
+    lastSpan.innerHTML = '';
+    lastSpan.appendChild(span);
+    lastSpan = span;
     return;
   }
   if(lastSourceSpan) {
@@ -195,10 +196,10 @@ function consumeSpan(sourceSpan: ParseSourceSpan, highlight: string) {
 
   span.textContent = sourceSpan.toString();
 
-  span.setAttribute('data-highlight', highlight);
-
   astCode.appendChild(span);
   lastSourceSpan = sourceSpan;
+  lastSpan = span;
+
 }
 
 
@@ -223,6 +224,14 @@ class TemplateHumanizer implements TemplateAstVisitor {
     const type = name + counter++;
     consumeSpan(ast.sourceSpan, type);
     return consumeLi(name + (postName || ''), type, context, className);
+  }
+
+  consumeChild(ast: TemplateAst, context) {
+    const key = 'ast-item' + counter++;
+    highlight(lastSpan, ast, key)
+    const div = createDiv('ast-item', context);
+    div.dataset.highlight = key;
+    return div;
   }
 
   visitElement(ast: ElementAst, context: any): any {
@@ -266,25 +275,25 @@ class TemplateHumanizer implements TemplateAstVisitor {
   }
 
   visitReference(ast: ReferenceAst, context: any): any {
-    const div = createDiv('ast-item', context);
+    const div = this.consumeChild(ast, context);
     div.innerHTML += '<i>ReferenceAst</i> - ' + ast.name + ': ' + (ast.value ? ast.value.identifier.reference.name : '');
   }
   visitVariable(ast: VariableAst, context: any): any {
-    const div = createDiv('ast-item', context);
+    const div = this.consumeChild(ast, context);
     div.innerHTML += '<i>VariableAst</i> - ' + ast.name + ': ' + ast.value;
   }
   visitEvent(ast: BoundEventAst, context: any): any {
-    const div = createDiv('ast-item', context);
+    const div = this.consumeChild(ast, context);
     div.innerHTML += '<i>BoundEventAst</i> - name: ' + ast.name + ', target: ' + ast.target + ', handler: ' + ast.handler;
   }
   visitElementProperty(ast: BoundElementPropertyAst, context: any): any {
-    const div = createDiv('ast-item', context);
+    const div = this.consumeChild(ast, context);
     const type = PropertyBindingType[ast.type];
 
     div.innerHTML += `<i>BoundElementPropertyAst</i> - \n\t\ttype: PropertyBindingType.${type}, \n\t\tname: ${ast.name}, \n\t\tval: ${ast.value}, \n\t\tunits: ${ast.unit}`;
   }
   visitAttr(ast: AttrAst, context: any): any {
-    const div = createDiv('ast-item', context);
+    const div = this.consumeChild(ast, context);
     div.innerHTML += '<i>AttrAst</i> - ' + ast.name + ': ' + ast.value;
   }
   visitBoundText(ast: BoundTextAst, context: any): any {
@@ -306,7 +315,7 @@ class TemplateHumanizer implements TemplateAstVisitor {
     });
   }
   visitDirectiveProperty(ast: BoundDirectivePropertyAst, context: any): any {
-    const div = createDiv('ast-item', context);
+    const div = this.consumeChild(ast, context);
     div.innerHTML = '<i>BoundDirectivePropertyAst</i> - ' + ast.value;
   }
 }
@@ -321,9 +330,9 @@ export function parseTemplate(template: string) {
     return;
   }
 
-
   astCode.innerHTML = list.innerHTML = '';
   lastSourceSpan = null;
+  lastSpan = null;
   humanizeTplAstSourceSpans(result);
 
   if(lastSourceSpan) {
@@ -331,6 +340,7 @@ export function parseTemplate(template: string) {
     span.textContent += lastSourceSpan.end.file.content.substring(lastSourceSpan.end.offset);
     astCode.appendChild(span);
   }
+
   return result;
 }
 
@@ -367,3 +377,54 @@ export function parseTemplate(template: string) {
 
 
 // platformBrowserDynamic().bootstrapModule(AppModule, { providers: [ { provide: TemplateParser, useClass: TemplateParser2 }]});
+
+
+
+
+function highlight(node, ast, highl) {
+  let currentOffset = 0;
+
+  const startOffset = ast.sourceSpan.start.offset - lastSourceSpan.start.offset;
+  const end = startOffset + ast.sourceSpan.toString().length;
+
+  matchText(node, startOffset, end);
+
+  let matched = false;
+
+  function matchText(node, start, end) {
+    let child = node.firstChild;
+
+    do {
+      switch (child.nodeType) {
+        // span
+        case 1:
+          matchText(child, start, end);
+          break;
+        // text
+        case 3:
+          if(start >= currentOffset && end <= currentOffset + child.data.length) {
+            var replacementNode = child.splitText(start - currentOffset);
+            var nextNode = replacementNode.splitText(end - start);
+
+            var founded = nextNode.previousSibling;
+            founded.parentNode.removeChild(founded);
+
+            var span = document.createElement('span');
+
+            span.setAttribute('data-highlight', highl);
+            span.appendChild(founded);
+
+            child.parentNode.insertBefore(span, nextNode);
+            matched = true;
+            return;
+          }
+
+          currentOffset += child.data.length;
+          break;
+      }
+
+    } while ((child = child.nextSibling) && !matched);
+
+    return node;
+  }
+}

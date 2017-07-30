@@ -93,7 +93,7 @@ export function compileComponent(compMeta, parsedTemplate) {
   converter.visitAllStatements(outputContext.statements, ctx);
   // converter.createReturnStmt(ctx);
 
-  console.log(ctx.toSource());
+  // console.log(ctx.toSource());
   factoryCode.innerHTML = ctx.toSource();
 
   hljs.highlightBlock(factoryCode);
